@@ -20,6 +20,11 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    studentMail :{
+        type: String,
+        required: true,
+        unique: true
+    },
     attendance: {
         type: Map,
         of: Boolean
