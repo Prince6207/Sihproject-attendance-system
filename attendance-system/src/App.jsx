@@ -1,35 +1,88 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import { Html5QrcodeScanner } from "html5-qrcode";
+import * as QRCode from "qrcode";
+// import QRCode from "qrcode"; 
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [qrData, setQrData] = useState("");
+  const [qrImageUrl, setQrImageUrl] = useState("");
+  const [scannedResult, setScannedResult] = useState("");
+
+  // Fetch QR from backend
+  const fetchQR = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/qr/generate?sessionId=123");
+      const data = await res.json();
+      const qrString = JSON.stringify(data.qrData);
+      setQrData(qrString);
+
+      // Generate QR image
+      const qrUrl = await QRCode.toDataURL(qrString);
+      setQrImageUrl(qrUrl);
+    } catch (err) {
+      console.error("QR Fetch error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchQR();
+    const interval = setInterval(fetchQR, 60 * 1000); // refresh every 1 min
+    return () => clearInterval(interval);
+  }, []);
+
+  // Setup scanner
+  useEffect(() => {
+    if (!document.getElementById("reader")) return;
+
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    scanner.render(
+      async (decodedText) => {
+        setScannedResult(decodedText);
+        try {
+          const parsed = JSON.parse(decodedText);
+          const res = await fetch("http://localhost:8000/api/qr/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId: parsed.sessionId,
+              nonce: parsed.nonce,
+            }),
+          });
+          const verifyData = await res.json();
+          alert(`Verification result: ${verifyData.status}`);
+        } catch (err) {
+          console.error("Verify error:", err);
+        }
+      },
+      () => {}
+    );
+
+    return () => {
+      scanner.clear().catch(console.error);
+    };
+  }, []);
 
   return (
-    <>
+    <div className="App">
+      <h1>QR Code Attendance Test</h1>
+
+      <div style={{ marginBottom: "2rem" }}>
+        <h2>Teacher View (QR Generator)</h2>
+        {qrImageUrl ? (
+          <img src={qrImageUrl} alt="QR Code" width="200" />
+        ) : (
+          <p>Loading QR...</p>
+        )}
+      </div>
+
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h2>Student View (QR Scanner)</h2>
+        <div id="reader" style={{ width: "300px" }}></div>
+        <p>Scanned Data: {scannedResult}</p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

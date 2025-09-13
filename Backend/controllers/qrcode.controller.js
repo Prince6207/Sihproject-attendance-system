@@ -1,6 +1,6 @@
 import QRCode from "qrcode";
 import crypto from "crypto";
-import Qr from "../models/Qr.js";
+import Qr from "../models/qr.models.js";
 
 export const generateQR = async (req, res) => {
   try {
@@ -8,7 +8,7 @@ export const generateQR = async (req, res) => {
     if (!sessionId) return res.status(400).json({ error: "sessionId required" });
 
     const nonce = crypto.randomBytes(8).toString("hex");
-    const exp = new Date(Date.now() + 60 * 1000); // 1 min expiry
+    const exp = new Date(Date.now() + 60 * 1000); 
 
     await Qr.create({ sessionId, nonce, exp });
 
