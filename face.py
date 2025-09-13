@@ -6,6 +6,7 @@ import shutil
 import tempfile
 from deepface import DeepFace
 import numpy as np
+
 # --- Constants and Initial Setup ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "user_data.pkl")
@@ -163,7 +164,7 @@ def capture_multiple_images_for_login(num_images=10):
     return captured_image_paths, temp_dir
 
 
-# --- THE ONLY FUNCTION THAT CHANGED ---
+# --- Sign-up function with validation ---
 def sign_up(username):
     if not username:
         print("❌ Username cannot be empty.")
@@ -184,43 +185,39 @@ def sign_up(username):
         print("❌ Sign-up failed: Image capture was cancelled or failed.")
         return
 
-    # --- NEW VALIDATION STEP ---
     print("\n🧐 Verifying image quality with the recognition model...")
     
     valid_images_found = 0
-    # List all captured images and sort them to process in order
     image_files = sorted(os.listdir(user_dir_path), key=lambda x: int(os.path.splitext(x)[0]))
 
     for img_file in image_files:
         img_path = os.path.join(user_dir_path, img_file)
         try:
-            # We use DeepFace.represent as a way to check if a face is detectable and processable.
-            # If this fails, it will raise a ValueError.
             _ = DeepFace.represent(img_path, model_name="Facenet", enforce_detection=True)
             valid_images_found += 1
             print(f"✔️ Image '{img_file}' is high quality.")
         except ValueError:
-            # If DeepFace can't find a face, we discard the image.
             print(f"❌ Image '{img_file}' is not clear enough. Discarding.")
-            os.remove(img_path) # Delete the poor-quality image
+            os.remove(img_path)
 
-    # --- FINAL CHECK ---
-    # After validation, check if we have any usable images left.
     if valid_images_found == 0:
         print("\n❌ Sign-up failed: None of the captured images were clear enough.")
         print("Please try again in better lighting and with a clearer view of your face.")
-        shutil.rmtree(user_dir_path) # Clean up the empty user folder
+        shutil.rmtree(user_dir_path)
         return
 
-    # If validation is successful, save the user data.
     db[username] = user_dir_path
     with open(DATA_FILE, "wb") as f:
         pickle.dump(db, f)
     print(f"\n✅ User '{username}' registered successfully with {valid_images_found} high-quality images!")
 
 
-# --- Login function ---
+# --- THE ONLY FUNCTION THAT CHANGED ---
 def login(username):
+    # This is the number of successful matches required to log in.
+    # You can increase this for higher security (e.g., 4 or 5).
+    MIN_MATCH_COUNT = 7
+
     if not os.path.exists(DATA_FILE):
         print("❌ No users registered. Please sign up first.")
         return
@@ -238,6 +235,7 @@ def login(username):
         if not image_files:
              print(f"❌ Error: No valid images found for user '{username}'. Please sign up again.")
              return
+        # We still use the first registered image as the reference.
         registered_img_path = os.path.join(registered_user_dir, image_files[0])
     except (FileNotFoundError, IndexError):
         print(f"❌ Error: Registration data for '{username}' is corrupted. Please sign up again.")
@@ -252,8 +250,10 @@ def login(username):
         shutil.rmtree(temp_dir)
         return
 
-    is_login_successful = False
+    # --- NEW CONSENSUS LOGIC ---
+    successful_matches = 0
     try:
+        # Loop through each captured login image to count matches
         for i, login_img_path in enumerate(login_image_paths):
             print(f"🔄 Verifying image {i + 1}/{len(login_image_paths)}...")
             try:
@@ -263,25 +263,28 @@ def login(username):
                     model_name="Facenet"
                 )
                 if result["verified"]:
-                    print("--------------------")
-                    print("✅ Login successful!")
-                    print(f"Match found with image {i + 1}. Distance: {result['distance']:.4f}")
-                    print("--------------------")
-                    is_login_successful = True
-                    break
+                    successful_matches += 1
+                    print(f"✔️ Match found! (Total: {successful_matches})")
+                else:
+                    print("✖️ No match.")
             except ValueError as e:
-                print(f"⚠️ Could not process image {i + 1}. Trying next one. Error: {e}")
+                print(f"⚠️ Could not process image {i + 1}. Skipping. Error: {e}")
                 continue
         
-        if not is_login_successful:
-            print("--------------------")
-            print("❌ Login failed: We couldn't verify your identity.")
-            print("--------------------")
+        # After checking all images, make the final decision
+        print("\n--- Verification Complete ---")
+        print(f"Found {successful_matches} successful matches out of {len(login_image_paths)} attempts.")
+        
+        if successful_matches >= MIN_MATCH_COUNT:
+            print(f"✅ Login successful! (Required: {MIN_MATCH_COUNT})")
+        else:
+            print(f"❌ Login failed: Insufficient matches. (Required: {MIN_MATCH_COUNT})")
+        print("---------------------------")
 
     finally:
+        # Clean up the temporary directory and its contents
         print("🧹 Cleaning up temporary files...")
         shutil.rmtree(temp_dir)
-
 
 # --- Main Execution Block ---
 if __name__ == "__main__":
