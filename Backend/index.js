@@ -48,5 +48,5 @@ console.log("qr creation error4") ;
 
 // const PORT = process.env.PORT || 5000;
 app.listen(() => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port`);
 });
