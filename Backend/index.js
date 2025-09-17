@@ -17,6 +17,24 @@ app.use(cors({
 // Connect DB
 connectDB();
 
+app.post("/api/verify", async (req, res) => {
+  try {
+    // Forward the QR data to FastAPI
+    const response = await fetch("http://localhost:8001/face/login/trace", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body), // sessionId + nonce
+    });
+    const data = await response.json();
+
+    // Return FastAPI response back to React
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ status: "error", reason: err.message });
+  }
+});
+
+
 // Routes
 app.use("/api/qr", qrRoutes);
 app.use("/face", faceRoutes);

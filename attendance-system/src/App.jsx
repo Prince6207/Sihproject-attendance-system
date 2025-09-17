@@ -50,7 +50,27 @@ function App() {
             }),
           });
           const verifyData = await res.json();
-          alert(`Verification result: ${verifyData.status}`);
+if (verifyData.status === "success") {
+  // window.location.href = `http://localhost:8001/face/login/trace}`;'
+  // window.location.href = `http://localhost:8000/face/login/trace`;
+  const username = "trace" ;
+  const faceRes = await fetch(`http://localhost:8001/api/face/login/${username}`, {
+    method: "POST"
+  });
+
+  const faceData = await faceRes.json();
+  console.log("Decoded QR:", decodedText);
+console.log("Verify response:", verifyData);
+console.log("Face response:", faceData);
+
+  if (faceData.status === "success") {
+    setScannedResult("Face Auth Successful 🎉");
+  } else {
+    setScannedResult("Face Auth Failed ❌ " + faceData.message);
+  }
+} else {
+  alert("QR verification failed: " + verifyData.reason);
+}
         } catch (err) {
           console.error("Verify error:", err);
         }
@@ -61,7 +81,65 @@ function App() {
     return () => {
       scanner.clear().catch(console.error);
     };
+
+    
   }, []);
+  // useEffect(() => {
+  //   if (!document.getElementById("reader")) return;
+
+  //   const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+
+  //   scanner.render(
+  //     async (decodedText) => {
+  //       let parsed;
+  //       try {
+  //         parsed = JSON.parse(decodedText);
+  //       } catch {
+  //         alert("Invalid QR format");
+  //         return;
+  //       }
+
+  //       try {
+  //         const res = await fetch("http://localhost:8000/api/qr/verify", {
+  //           method: "POST",
+  //           headers: { "Content-Type": "application/json" },
+  //           body: JSON.stringify({
+  //             sessionId: parsed.sessionId,
+  //             nonce: parsed.nonce,
+  //           }),
+  //         });
+  //         const verifyData = await res.json();
+
+  //         if (verifyData.status === "success") {
+  //           setScannedResult("QR verified ✅ Starting Face 2 auth...");
+
+  //           // Call Face 2 authentication endpoint in backend
+  //           const faceRes = await fetch("http://localhost:8000/face/login", {
+  //             method: "POST",
+  //             headers: { "Content-Type": "application/json" },
+  //             body: JSON.stringify({ sessionId: parsed.sessionId }),
+  //           });
+  //           const faceData = await faceRes.json();
+
+  //           if (faceData.status === "success") {
+  //             setScannedResult("Face 2 Auth Successful 🎉");
+  //           } else {
+  //             setScannedResult("Face 2 Auth Failed ❌");
+  //           }
+
+  //         } else {
+  //           alert("QR verification failed: " + verifyData.reason);
+  //         }
+  //       } catch (err) {
+  //         console.error(err);
+  //         alert("Verification failed due to error");
+  //       }
+  //     },
+  //     () => {}
+  //   );
+
+  //   return () => scanner.clear().catch(console.error);
+  // }, []);
 
   return (
     <div className="App">
@@ -81,7 +159,15 @@ function App() {
         <div id="reader" style={{ width: "300px" }}></div>
         <p>Scanned Data: {scannedResult}</p>
       </div>
+
+       {/* <div>
+      <h1>QR + Face 2 Auth</h1>
+      <div id="read" style={{ width: "300px" }}></div>
+      <p>{scannedResult}</p>
+    </div> */}
     </div>
+
+    
   );
 }
 
