@@ -17,22 +17,22 @@ app.use(cors({
 // Connect DB
 connectDB();
 
-app.post("/api/verify", async (req, res) => {
-  try {
-    // Forward the QR data to FastAPI
-    const response = await fetch("http://localhost:8001/face/login/trace", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body), // sessionId + nonce
-    });
-    const data = await response.json();
+// app.post("/api/verify", async (req, res) => {
+//   try {
+//     // Forward the QR data to FastAPI
+//     const response = await fetch("http://localhost:8001/face/login/trace", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(req.body), // sessionId + nonce
+//     });
+//     const data = await response.json();
 
-    // Return FastAPI response back to React
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ status: "error", reason: err.message });
-  }
-});
+//     // Return FastAPI response back to React
+//     res.json(data);
+//   } catch (err) {
+//     res.status(500).json({ status: "error", reason: err.message });
+//   }
+// });
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
@@ -44,8 +44,9 @@ app.use("/face", faceRoutes);
 app.get("/dashboard", (req, res) => {
   res.send("✅ Attendance marked and dashboard accessed!");
 });
+console.log("qr creation error4") ;
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// const PORT = process.env.PORT || 5000;
+app.listen(() => {
   console.log(`Server running on port ${PORT}`);
 });

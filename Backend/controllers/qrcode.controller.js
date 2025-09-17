@@ -21,7 +21,7 @@ export const generateQR = async (req, res) => {
     // encode QR data (sessionId + nonce)
     const qrData = { sessionId, nonce };
     const qrImage = await QRCode.toDataURL(JSON.stringify(qrData));
-
+    console.log("qr creation error") ;
     return res.json({ qrImage, qrData });
   } catch (err) {
     console.error("QR Generation Error:", err.message);
