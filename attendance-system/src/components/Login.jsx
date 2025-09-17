@@ -1,6 +1,6 @@
 // src/components/Login.jsx
 import React, { useState } from "react";
-import { loginUser } from "../services/authService";
+import { loginUser } from "../../../Backend/controllers/user.controller.js";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
@@ -10,7 +10,7 @@ const Login = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await loginUser(email, password);
+      const data = loginUser(email, password);
       console.log("Logged in user:", data.user);
       onLogin(data.user); // lift user state up
       setError("");

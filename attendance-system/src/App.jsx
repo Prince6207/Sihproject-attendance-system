@@ -173,5 +173,30 @@
 
 import { useState ,useEffect} from 'react'
 import { useDispatch } from 'react-redux'
+import { Outlet } from 'react-router-dom'
+import {Header}  from './components/Header/Header.jsx'
+import {Footer}  from './components/Footer/Footer.jsx'
 import './App.css'
 
+function App() {
+    const [loading,setLoading]=useState(true) ;
+    setLoading(false) ;
+
+    return(
+        loading ? (
+  <div>Loading...</div>
+) : (
+  <div className='min-h-screen flex flex-wrap content-between bg-grey-400'>
+    <div className='w-full block'>
+        <Header/>
+        <main>
+          <Outlet />
+        </main>
+        <Footer/>
+    </div>
+  </div>
+)
+    )
+}
+
+export default App ;
