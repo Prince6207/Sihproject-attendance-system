@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:5173"  // allow only your frontend
+  origin: "*"
 }));
 
 // Connect DB
@@ -33,7 +33,9 @@ app.post("/api/verify", async (req, res) => {
     res.status(500).json({ status: "error", reason: err.message });
   }
 });
-
+app.get("/", (req, res) => {
+  res.send("API is running 🚀");
+});
 
 // Routes
 app.use("/api/qr", qrRoutes);
