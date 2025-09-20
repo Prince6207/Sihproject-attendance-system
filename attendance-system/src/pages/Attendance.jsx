@@ -54,7 +54,7 @@ if (verifyData.status === "success") {
   // window.location.href = `http://localhost:8001/face/login/trace}`;'
   // window.location.href = `http://localhost:8000/face/login/trace`;
   const username = "trace" ;
-  const faceRes = await fetch(`http://localhost:8000/api/face/login/${username}`, {
+  const faceRes = await fetch(`http://localhost:5000/api/face/login-test`, {
     method: "POST"
   });
 
