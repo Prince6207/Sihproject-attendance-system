@@ -12,7 +12,7 @@ const studentSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    sclass: {
+    class: {
         type: String,
         required: true
     },
