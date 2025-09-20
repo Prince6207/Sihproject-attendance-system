@@ -12,42 +12,7 @@ import studentRoutes from "./routes/student.routes.js";
 dotenv.config();
 
 const app = express();
-
-// Parse JSON bodies first with error handling
-app.use(express.json({ 
-  limit: '10mb',
-  verify: (req, res, buf) => {
-    try {
-      JSON.parse(buf);
-    } catch (e) {
-      console.error('JSON Parse Error:', e.message);
-      console.error('Raw body:', buf.toString());
-      res.status(400).json({
-        success: false,
-        message: 'Invalid JSON format',
-        error: e.message
-      });
-      return;
-    }
-  }
-}));
-
-// Parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Handle raw text/plain content
-app.use(express.text({ type: 'text/plain' }));
-
-// Debug middleware to log request details (after parsing)
-app.use((req, res, next) => {
-  console.log(`\n=== Request Debug ===`);
-  console.log(`Method: ${req.method}`);
-  console.log(`URL: ${req.url}`);
-  console.log(`Content-Type: ${req.get('Content-Type')}`);
-  console.log(`Body:`, req.body);
-  console.log(`========================\n`);
-  next();
-});
+app.use(express.json());
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: "*" } });

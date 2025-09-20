@@ -403,20 +403,6 @@ const generateAccessAndRefreshToken = async (studentId) => {
 };
 
 const registerStudent = asyncHandler(async (req, res) => {
-  console.log("=== Controller Debug ===");
-  console.log("req.body:", req.body);
-  console.log("req.body type:", typeof req.body);
-  console.log("req.headers['content-type']:", req.headers['content-type']);
-  console.log("========================");
-  
-  // Check if req.body is undefined
-  if (!req.body) {
-    return res.status(400).json({
-      success: false,
-      message: "Request body is undefined. Please ensure you're sending JSON data with Content-Type: application/json"
-    });
-  }
-  
   const { name, rollNumber, sclass, section, studentMail } = req.body;
 
   // if ([name, rollNumber, sclass, section, studentMail].some((f) => !f || f.trim() === "")) {
