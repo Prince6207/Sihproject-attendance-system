@@ -1,14 +1,16 @@
-console.log("Student routes file initiated");
-import {Router} from "express";
+import {Router} from "express"
 import  {registerStudent}  from "../controllers/user.controller.js";
-// import {upload} from "../middlewares/multer.middleware.js"
-// import { verifyJWT } from "../middlewares/auth.middleware.js";
-console.log("Student routes file started");
+import {upload} from "../middlewares/multer.middleware.js"
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+
 const router = Router()
-console.log("Student routes loaded");
+
 router.route("/register").post(
+    upload.fields([
+        { name: "avatar", maxCount: 1 },
+    ]),
     registerStudent
-);
+)
 
 // router.route("/login").post(loginUser)
 

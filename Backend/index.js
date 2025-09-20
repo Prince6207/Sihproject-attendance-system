@@ -5,22 +5,57 @@ import qrRoutes from "./routes/qr.routes.js";
 import cors from "cors";
 import faceRoutes from "./routes/face.routes.js";
 import { createServer } from "http";
-// import { Server } from "socket.io";
+import { Server } from "socket.io";
 import studentRoutes from "./routes/student.routes.js";
 
 
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 
-// const httpServer = createServer(app);
-// const io = new Server(httpServer, { cors: { origin: "*" } });
-// io.on("connection", (socket) => {
-//   console.log("New client connected:", socket.id);
+// Parse JSON bodies first with error handling
+app.use(express.json({ 
+  limit: '10mb',
+  verify: (req, res, buf) => {
+    try {
+      JSON.parse(buf);
+    } catch (e) {
+      console.error('JSON Parse Error:', e.message);
+      console.error('Raw body:', buf.toString());
+      res.status(400).json({
+        success: false,
+        message: 'Invalid JSON format',
+        error: e.message
+      });
+      return;
+    }
+  }
+}));
 
-//   socket.emit("welcome", "Welcome to the attendance dashboard!");
-// });
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Handle raw text/plain content
+app.use(express.text({ type: 'text/plain' }));
+
+// Debug middleware to log request details (after parsing)
+app.use((req, res, next) => {
+  console.log(`\n=== Request Debug ===`);
+  console.log(`Method: ${req.method}`);
+  console.log(`URL: ${req.url}`);
+  console.log(`Content-Type: ${req.get('Content-Type')}`);
+  console.log(`Body:`, req.body);
+  console.log(`========================\n`);
+  next();
+});
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
+io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
+
+  socket.emit("welcome", "Welcome to the attendance dashboard!");
+});
 
 app.use(cors({
   origin: "*"
@@ -45,21 +80,15 @@ connectDB();
 //     res.status(500).json({ status: "error", reason: err.message });
 //   }
 // });
-// Routes
-console.log("Backend server started");
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
-console.log("QR routes loaded");
+
+// Routes
 app.use("/api/qr", qrRoutes);
 // app.use("/face", faceRoutes);
 app.use("/api/face", faceRoutes);
-console.log("Face routes loaded");
-app.use("/api/student",studentRoutes);
-console.log("Student routes loaded");
-
-
-
+app.use("/api/student",studentRoutes)
 
 app.get("/dashboard", (req, res) => {
   res.send("✅ Attendance marked and dashboard accessed!");
@@ -67,6 +96,6 @@ app.get("/dashboard", (req, res) => {
 // console.log("qr creation error4") ;
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT,() => {
+app.listen(() => {
   console.log(`Server running on port ${PORT}`);
 });
