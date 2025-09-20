@@ -8,6 +8,7 @@
 
 // export default router;
 import { Router } from "express";
+import { spawn } from "child_process";
 import { loginWithFace, signupWithFace } from "../controllers/face.controller.js";
 
 const router = Router();
@@ -19,7 +20,7 @@ router.post("/login", (req, res) => {
 //   }
     const username = "trace"; // For testing purposes
 
-  const py = spawn("python", ["main.py", "login", username], {
+  const py = spawn("python", ["../FaceAuth/face_auth_cli.py", "login", username], {
     cwd: process.cwd(), // make sure it's running from project root
   });
 

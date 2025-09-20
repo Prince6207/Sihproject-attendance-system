@@ -74,26 +74,37 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import subprocess
 import json
+import sys
+import os
 
-app = FastAPI()
+app = FastAPI(title="Face Authentication Service")
 
-# ✅ Allow frontend (React) to call backend
+# ✅ Allow frontend (React) and Express backend to call FastAPI
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # you can restrict this to ["http://localhost:3000"]
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+@app.get("/")
+def root():
+    return {"message": "Face Authentication API is running"}
+
 @app.post("/api/face/login/{username}")
 def face_login(username: str):
     try:
+        # Get the directory where this script is located
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        face_auth_script = os.path.join(script_dir, "face_auth.py")
+        
         # Spawn the face recognition script
         result = subprocess.run(
-            ["python", "face_auth.py", "login", username],
+            [sys.executable, "face_auth_cli.py", "login", username],
             capture_output=True,
-            text=True
+            text=True,
+            cwd=script_dir
         )
 
         if result.returncode != 0:
@@ -109,7 +120,7 @@ def face_login(username: str):
         except json.JSONDecodeError:
             return JSONResponse(
                 status_code=500,
-                content={"status": "error", "message": "Invalid JSON output from face_auth.py"}
+                content={"status": "error", "message": "Invalid JSON output from face_auth.py", "raw_output": result.stdout}
             )
 
     except Exception as e:
@@ -121,10 +132,15 @@ def face_login(username: str):
 @app.post("/api/face/signup/{username}")
 def face_signup(username: str):
     try:
+        # Get the directory where this script is located
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        face_auth_script = os.path.join(script_dir, "face_auth.py")
+        
         result = subprocess.run(
-            ["python", "face_auth.py", "signup", username],
+            [sys.executable, "face_auth_cli.py", "signup", username],
             capture_output=True,
-            text=True
+            text=True,
+            cwd=script_dir
         )
 
         if result.returncode != 0:
@@ -139,7 +155,7 @@ def face_signup(username: str):
         except json.JSONDecodeError:
             return JSONResponse(
                 status_code=500,
-                content={"status": "error", "message": "Invalid JSON output from face_auth.py"}
+                content={"status": "error", "message": "Invalid JSON output from face_auth.py", "raw_output": result.stdout}
             )
 
     except Exception as e:
@@ -147,3 +163,7 @@ def face_signup(username: str):
             status_code=500,
             content={"status": "error", "message": str(e)}
         )
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)
