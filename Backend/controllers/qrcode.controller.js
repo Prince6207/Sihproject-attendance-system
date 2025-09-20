@@ -67,7 +67,7 @@ export const generateQR = async (req, res) => {
 export const verifyQR = async (req, res) => {
   try {
     const { sessionId, nonce } = req.body;
-    const record = await Qr.findOne({ sessionId, nonce ,exp});
+    const record = await Qr.findOne({ sessionId, nonce });
     if (!record) return res.status(400).json({ status: "failure", reason: "Invalid QR" });
 
     if (record.exp < new Date()) {
