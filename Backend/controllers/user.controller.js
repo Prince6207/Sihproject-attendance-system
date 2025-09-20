@@ -1,6 +1,6 @@
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
-import User from "../models/user.models.js"
+import Student from "../models/student.model.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
@@ -20,104 +20,152 @@ const generateAccessAndRefreshToken = async(userId) => {
     }
 }
 
-const registerUser = asyncHandler( async(req,res) => {
-    // res.status(200).json({
-    //     message: "ok"
-    // })
+// const registerUser = asyncHandler( async(req,res) => {
+//     // res.status(200).json({
+//     //     message: "ok"
+//     // })
 
-    //steps to register 
-    //get user detail from frontend
+//     //steps to register 
+//     //get user detail from frontend
 
-    //validation - not empty
+//     //validation - not empty
 
-    // check if user already exists : username,email
+//     // check if user already exists : username,email
 
-    //check for images,check fro avatar
+//     //check for images,check fro avatar
 
-    //upload them to cloudinary
+//     //upload them to cloudinary
 
-    //create uer object - create entry in db
+//     //create uer object - create entry in db
 
-    //remove password and refresh token field from response
+//     //remove password and refresh token field from response
 
-    //check for user creation
+//     //check for user creation
 
-    //retunr res
+//     //retunr res
 
-    const {fullName, email, username, password } = req.body
-    
-    console.log("fullName : " , fullName);
-    console.log("Email : " , email);
-    console.log(username);
-    console.log(password);
+//     const {name, rollNumber, class, section,studentMail,attendance } = req.body
 
-    // if(fullName === "")
-    // {
-    //     throw new ApiError(400,"controller Not working")
-    // }
-    
-    if([fullName ,email , username , password].some((field)=>
-        field?.trim() === ""
-    )){
-        throw new ApiError(400,"All fields are required");
-    }
+//     console.log("Name : " , name);
+//     console.log("Roll Number : " , rollNumber);
+//     console.log("Class : " , class);
+//     console.log("Section : " , section);
+//     console.log("Email : " , studentMail);
+//     console.log("Attendance : " , attendance);
 
-    const existedUser = await User.findOne({
-        $or : [{username},{email}]
-    })
+//     // if(name === "")
+//     // {
+//     //     throw new ApiError(400,"controller Not working")
+//     // }
 
-    if(existedUser)
-    {
-        throw new ApiError(409,"User already exists")
-    }
-    console.log("🧾 Files received:", req.files);
+//     if([name ,rollNumber ,class, section, studentMail, attendance].some((field)=>
+//         field?.trim() === ""
+//     )){
+//         throw new ApiError(400,"All fields are required");
+//     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+//     const existedUser = await Student.findOne({
+//         $or : [{username},{email}]
+//     })
 
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+//     if(existedUser)
+//     {
+//         throw new ApiError(409,"User already exists")
+//     }
+//     console.log("🧾 Files received:", req.files);
 
-    if(!avatarLocalPath)
-    {
-        throw new ApiError(400,"Avatar file is required")
-    }
+//     const avatarLocalPath = req.files?.avatar[0]?.path;
 
-    // const avatar = await uploadOnCloudinary(avatarLocalPath)
+//     const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
-    // const coverImage = await uploadOnCloudinary(coverImageLocalPath)
-    console.log("📂 Uploading avatar from:", avatarLocalPath);
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
+//     if(!avatarLocalPath)
+//     {
+//         throw new ApiError(400,"Avatar file is required")
+//     }
 
-const coverImage = coverImageLocalPath
-  ? await uploadOnCloudinary(coverImageLocalPath)
-  : null;
+//     // const avatar = await uploadOnCloudinary(avatarLocalPath)
 
-    if(!avatar)
-    {
-        throw new ApiError(400," avatar field required");
-    }
+//     // const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+//     console.log("📂 Uploading avatar from:", avatarLocalPath);
+//     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    const newUser  = await User.create({
-        fullName,
-        avatar: avatar.url,
-        coverImage:coverImage?.url || "",
-        email,
-        password,
-        username: username.toLowerCase()
-    })
+// const coverImage = coverImageLocalPath
+//   ? await uploadOnCloudinary(coverImageLocalPath)
+//   : null;
 
-    const createdUser = await User.findById(newUser._id).select(
-        "-password -refreshToken"
-    )
+//     if(!avatar)
+//     {
+//         throw new ApiError(400," avatar field required");
+//     }
 
-    if(!createdUser)
-    {
-        throw new ApiError(500,"Not able to register the user")
-    }
+//     const newUser  = await Student.create({
+//         name,
+//         rollNumber,
+//         class: class,
+//         section,
+//         studentMail,
+//         attendance,
+//     })
 
-    return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered successfully")
-    )
-})
+//     const createdUser = await Student.findById(newUser._id).select(
+//         "-password -refreshToken"
+//     )
+
+//     if(!createdUser)
+//     {
+//         throw new ApiError(500,"Not able to register the user")
+//     }
+
+//     return res.status(201).json(
+//         new ApiResponse(200, createdUser, "User registered successfully")
+//     )
+// })
+const registerStudent = asyncHandler(async (req, res) => {
+  const { name, rollNumber, sclass, section, studentMail,avatar } = req.body;
+
+  // Validation
+  if ([name, rollNumber,sclass, section, studentMail, avatar].some((field) => !field || field.trim() === "")) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  // Check if student already exists
+  const existedStudent = await Student.findOne({
+    $or: [{ rollNumber }, { studentMail }],
+  });
+
+  if (existedStudent) {
+    throw new ApiError(409, "Student already exists");
+  }
+
+  // Optional: profile picture upload
+  let avatarUrl = null;
+  if (req.files?.avatar?.[0]?.path) {
+    const avatarUpload = await uploadOnCloudinary(req.files.avatar[0].path);
+    avatarUrl = avatarUpload?.url;
+  }
+
+  // Create new student
+  const newStudent = await Student.create({
+    name,
+    rollNumber,
+    class: studentClass,
+    section,
+    studentMail,
+    attendance: 0, // default
+    avatar: avatarUrl,
+  });
+
+  const createdStudent = await Student.findById(newStudent._id).select("-password -refreshToken");
+
+  if (!createdStudent) {
+    throw new ApiError(500, "Not able to register the student");
+  }
+
+  return res.status(201).json(
+    new ApiResponse(200, createdStudent, "Student registered successfully")
+  );
+});
+
 
 const loginUser = asyncHandler(async (req,res) => {
     //req body - access username and password from user

@@ -12,7 +12,7 @@ const studentSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    class: {
+    sclass: {
         type: String,
         required: true
     },
@@ -29,9 +29,10 @@ const studentSchema = new mongoose.Schema({
         type: Map,
         of: Boolean
     },
-    marks: {
-        type: Map,
-        of: Number
+    avatar :{
+        type: String ,
+        required : true ,
+        default : "#"
     }
 })
 const Student = mongoose.model('Student', studentSchema)
