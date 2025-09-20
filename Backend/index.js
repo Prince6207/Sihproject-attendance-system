@@ -7,6 +7,7 @@ import faceRoutes from "./routes/face.routes.js";
 // import { createServer } from "http";
 // import { Server } from "socket.io";
 import studentRoutes from "./routes/student.routes.js";
+// import teacherRoutes from "./routes/teacher.routes.js";
 
 
 dotenv.config();
@@ -54,6 +55,7 @@ app.use("/api/qr", qrRoutes);
 // app.use("/face", faceRoutes);
 app.use("/api/face", faceRoutes);
 app.use("/api/student",studentRoutes);
+// app.use("/api/teacher",teacherRoutes);
 
 app.get("/dashboard", (req, res) => {
   res.send("✅ Attendance marked and dashboard accessed!");

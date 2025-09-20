@@ -12,7 +12,7 @@ const teacherSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    class: [{
+    tclass: [{
         type: mongoose.Schema.Types.ObjectId,
         ref : 'Class',
         required: true
