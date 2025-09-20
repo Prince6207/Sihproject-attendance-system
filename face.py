@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "user_data.pkl")
 DATASET_DIR = os.path.join(BASE_DIR, "dataset")
 HAAR_CASCADE_PATH = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
-os.makedirs(DATASET_DIR, exist_ok=True)
+os.makedirs(DATASET_DIR, exist_ok=True) 
 
 
 # --- Pre-load Models for Efficiency ---
