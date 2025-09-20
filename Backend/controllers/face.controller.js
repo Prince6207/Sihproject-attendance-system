@@ -72,7 +72,7 @@ export const loginWithFace = async (req, res) => {
     // Call FastAPI login endpoint
     const response = await axios.post(`${FACE_API_URL}/api/face/login/${username}`);
 
-    if (response.data.status === "ok") {
+    if (response.data.status === "ok" && response.data.success) {
       return res.json({
         status: "success",
         message: `Face verified successfully for ${username}`,

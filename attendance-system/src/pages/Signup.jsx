@@ -21,7 +21,7 @@ const StudentForm = () => {
   };
 
     const addstudent=async (student)=>{
-        const res=await axios.post('http://localhost:8000/api/student/register',student);
+        const res=await axios.post('http://localhost:5000/api/student/register',student);
         console.log(res.data);
     }
 

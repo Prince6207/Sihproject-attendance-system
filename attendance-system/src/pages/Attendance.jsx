@@ -12,7 +12,7 @@ function Attend() {
   // Fetch QR from backend
   const fetchQR = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/qr/generate?sessionId=123`);
+      const res = await fetch(`http://localhost:5000/api/qr/generate?sessionId=123`);
       const data = await res.json();
       const qrString = JSON.stringify(data.qrData);
       setQrData(qrString);
@@ -41,7 +41,7 @@ function Attend() {
         setScannedResult(decodedText);
         try {
           const parsed = JSON.parse(decodedText);
-          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/qr/verify`, {
+          const res = await fetch(`http://localhost:5000/api/qr/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -54,7 +54,7 @@ if (verifyData.status === "success") {
   // window.location.href = `http://localhost:8001/face/login/trace}`;'
   // window.location.href = `http://localhost:8000/face/login/trace`;
   const username = "trace" ;
-  const faceRes = await fetch(`${process.env.REACT_APP_API_URL}/api/face/login/${username}`, {
+  const faceRes = await fetch(`http://localhost:8001/api/face/login/${username}`, {
     method: "POST"
   });
 

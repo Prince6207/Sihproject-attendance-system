@@ -166,4 +166,5 @@ def face_signup(username: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    print("🚀 Starting FastAPI server on http://localhost:8001")
+    uvicorn.run(app, host="0.0.0.0", port=8001, reload=True)

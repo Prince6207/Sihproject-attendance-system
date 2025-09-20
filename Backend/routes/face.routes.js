@@ -47,7 +47,7 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.post("/face/login/:username", loginWithFace);
-router.post("/face/signup/:username", signupWithFace);
+router.post("/login/:username", loginWithFace);
+router.post("/signup/:username", signupWithFace);
 
 export default router;
