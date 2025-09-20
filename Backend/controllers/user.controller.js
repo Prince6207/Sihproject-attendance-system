@@ -418,42 +418,35 @@ const registerStudent = asyncHandler(async (req, res) => {
   }
   
   const { name, rollNumber, sclass, section, studentMail } = req.body;
-  
-  // Validation
-  if ([name, rollNumber, sclass, section, studentMail].some((f) => !f || f.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
-  }
-  // Check if student already exists
-  const existedStudent = await Student.findOne({
-    $or: [{ rollNumber }, { studentMail }],
-  });
-  if (existedStudent) throw new ApiError(409, "Student already exists");
 
-  // Optional: profile picture upload
-  let avatarUrl = null;
-  if (req.files?.avatar?.[0]?.path) {
-    const avatarUpload = await uploadOnCloudinary(req.files.avatar[0].path);
-    avatarUrl = avatarUpload?.url;
-  }
+  // if ([name, rollNumber, sclass, section, studentMail].some((f) => !f || f.trim() === "")) {
+  //   throw new ApiError(400, "All fields are required");
+  // }
 
-  // Create new student
-  const newStudent = await Student.create({
-    name,
-    rollNumber,
-    class: sclass,
-    section,
-    studentMail,
-    attendance: 0,
-    avatar: avatarUrl,
-  });
+  // const existedStudent = await Student.findOne({
+  //   $or: [{ rollNumber }, { studentMail }],
+  // });
+  // if (existedStudent) throw new ApiError(409, "Student already exists");
 
-  if (!newStudent) {
-    throw new ApiError(500, "Not able to register the student");
-  }
+  // let avatarUrl = null;
+  // if (req.files?.avatar?.[0]?.path) {
+  //   const avatarUpload = await uploadOnCloudinary(req.files.avatar[0].path);
+  //   avatarUrl = avatarUpload?.url;
+  // }
+
+  // const newStudent = await Student.create({
+  //   name,
+  //   rollNumber,
+  //   class: sclass,
+  //   section,
+  //   studentMail,
+  //   attendance: 0,
+  //   avatar: avatarUrl,
+  // });
 
   return res
     .status(201)
-    .json(new ApiResponse(200, newStudent, "Student registered successfully"));
+    .json({message: "Student registered successfully"});
 });
 
 const loginStudent = asyncHandler(async (req, res) => {

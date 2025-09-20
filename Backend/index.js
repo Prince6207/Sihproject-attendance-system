@@ -5,7 +5,7 @@ import qrRoutes from "./routes/qr.routes.js";
 import cors from "cors";
 import faceRoutes from "./routes/face.routes.js";
 import { createServer } from "http";
-// import { Server } from "socket.io";
+import { Server } from "socket.io";
 import studentRoutes from "./routes/student.routes.js";
 
 
@@ -49,13 +49,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// const httpServer = createServer(app);
-// const io = new Server(httpServer, { cors: { origin: "*" } });
-// io.on("connection", (socket) => {
-//   console.log("New client connected:", socket.id);
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
+io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
 
-//   socket.emit("welcome", "Welcome to the attendance dashboard!");
-// });
+  socket.emit("welcome", "Welcome to the attendance dashboard!");
+});
 
 app.use(cors({
   origin: "*"
@@ -80,21 +80,15 @@ connectDB();
 //     res.status(500).json({ status: "error", reason: err.message });
 //   }
 // });
-// Routes
-console.log("Backend server started");
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
-console.log("QR routes loaded");
+
+// Routes
 app.use("/api/qr", qrRoutes);
 // app.use("/face", faceRoutes);
 app.use("/api/face", faceRoutes);
-console.log("Face routes loaded");
-app.use("/api/student",studentRoutes);
-console.log("Student routes loaded");
-
-
-
+app.use("/api/student",studentRoutes)
 
 app.get("/dashboard", (req, res) => {
   res.send("✅ Attendance marked and dashboard accessed!");
@@ -102,6 +96,6 @@ app.get("/dashboard", (req, res) => {
 // console.log("qr creation error4") ;
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT,() => {
+app.listen(() => {
   console.log(`Server running on port ${PORT}`);
 });
