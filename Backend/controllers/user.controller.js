@@ -405,34 +405,34 @@ const generateAccessAndRefreshToken = async (studentId) => {
 const registerStudent = asyncHandler(async (req, res) => {
   const { name, rollNumber, sclass, section, studentMail } = req.body;
 
-  if ([name, rollNumber, sclass, section, studentMail].some((f) => !f || f.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
-  }
+  // if ([name, rollNumber, sclass, section, studentMail].some((f) => !f || f.trim() === "")) {
+  //   throw new ApiError(400, "All fields are required");
+  // }
 
-  const existedStudent = await Student.findOne({
-    $or: [{ rollNumber }, { studentMail }],
-  });
-  if (existedStudent) throw new ApiError(409, "Student already exists");
+  // const existedStudent = await Student.findOne({
+  //   $or: [{ rollNumber }, { studentMail }],
+  // });
+  // if (existedStudent) throw new ApiError(409, "Student already exists");
 
-  let avatarUrl = null;
-  if (req.files?.avatar?.[0]?.path) {
-    const avatarUpload = await uploadOnCloudinary(req.files.avatar[0].path);
-    avatarUrl = avatarUpload?.url;
-  }
+  // let avatarUrl = null;
+  // if (req.files?.avatar?.[0]?.path) {
+  //   const avatarUpload = await uploadOnCloudinary(req.files.avatar[0].path);
+  //   avatarUrl = avatarUpload?.url;
+  // }
 
-  const newStudent = await Student.create({
-    name,
-    rollNumber,
-    class: sclass,
-    section,
-    studentMail,
-    attendance: 0,
-    avatar: avatarUrl,
-  });
+  // const newStudent = await Student.create({
+  //   name,
+  //   rollNumber,
+  //   class: sclass,
+  //   section,
+  //   studentMail,
+  //   attendance: 0,
+  //   avatar: avatarUrl,
+  // });
 
   return res
     .status(201)
-    .json(new ApiResponse(201, newStudent, "Student registered successfully"));
+    .json({message: "Student registered successfully"});
 });
 
 const loginStudent = asyncHandler(async (req, res) => {
