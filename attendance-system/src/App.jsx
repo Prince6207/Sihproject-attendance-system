@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import * as QRCode from "qrcode";
-// import QRCode from "qrcode"; 
+// import QRCode from "qrcode";
 import "./App.css";
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   // Fetch QR from backend
   const fetchQR = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/qr/generate?sessionId=123`);
+      const res = await fetch(`http://localhost:8000/api/qr/generate?sessionId=123`);
       const data = await res.json();
       const qrString = JSON.stringify(data.qrData);
       setQrData(qrString);
@@ -50,27 +50,27 @@ function App() {
             }),
           });
           const verifyData = await res.json();
-if (verifyData.status === "success") {
-  // window.location.href = `http://localhost:8001/face/login/trace}`;'
-  // window.location.href = `http://localhost:8000/face/login/trace`;
-  const username = "trace" ;
-  const faceRes = await fetch(`${process.env.REACT_APP_API_URL}/api/face/login/${username}`, {
-    method: "POST"
-  });
+// if (verifyData.status === "success") {
+//   // window.location.href = `http://localhost:8001/face/login/trace}`;'
+//   // window.location.href = `http://localhost:8000/face/login/trace`;
+//   const username = "trace" ;
+//   const faceRes = await fetch(`${process.env.REACT_APP_API_URL}/api/face/login/${username}`, {
+//     method: "POST"
+//   });
 
-  const faceData = await faceRes.json();
-  console.log("Decoded QR:", decodedText);
-console.log("Verify response:", verifyData);
-console.log("Face response:", faceData);
+//   const faceData = await faceRes.json();
+//   console.log("Decoded QR:", decodedText);
+// console.log("Verify response:", verifyData);
+// console.log("Face response:", faceData);
 
-  if (faceData.status === "success") {
-    setScannedResult("Face Auth Successful 🎉");
-  } else {
-    setScannedResult("Face Auth Failed ❌ " + faceData.message);
-  }
-} else {
-  alert("QR verification failed: " + verifyData.reason);
-}
+//   if (faceData.status === "success") {
+//     setScannedResult("Face Auth Successful 🎉");
+//   } else {
+//     setScannedResult("Face Auth Failed ❌ " + faceData.message);
+//   }
+// } else {
+//   alert("QR verification failed: " + verifyData.reason);
+// }
         } catch (err) {
           console.error("Verify error:", err);
         }

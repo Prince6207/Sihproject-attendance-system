@@ -23,7 +23,8 @@
     "multer": "^2.0.2",
     "prettier": "^3.6.2",
     "qrcode": "^1.5.4",
-    "redis": "^5.8.2"
+    "redis": "^5.8.2",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

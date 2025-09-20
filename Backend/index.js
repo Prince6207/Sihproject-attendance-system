@@ -4,11 +4,22 @@ import connectDB from "./db/index.js";
 import qrRoutes from "./routes/qr.routes.js";
 import cors from "cors";
 import faceRoutes from "./routes/face.routes.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
+
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
+io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
+
+  socket.emit("welcome", "Welcome to the attendance dashboard!");
+});
 
 app.use(cors({
   origin: "*"
@@ -39,14 +50,14 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/qr", qrRoutes);
-app.use("/face", faceRoutes);
+// app.use("/face", faceRoutes);
 
 app.get("/dashboard", (req, res) => {
   res.send("✅ Attendance marked and dashboard accessed!");
 });
-console.log("qr creation error4") ;
+// console.log("qr creation error4") ;
 
-// const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(() => {
-  console.log(`Server running on port`);
+  console.log(`Server running on port ${PORT}`);
 });

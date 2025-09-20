@@ -19,7 +19,7 @@ export const generateQR = async (req, res) => {
     await Qr.create({ sessionId, nonce, exp });
 
     // encode QR data (sessionId + nonce)
-    const qrData = { sessionId, nonce };
+    const qrData = { sessionId, nonce ,exp};
     const qrImage = await QRCode.toDataURL(JSON.stringify(qrData));
     console.log("qr creation error") ;
     return res.json({ qrImage, qrData });
@@ -30,37 +30,52 @@ export const generateQR = async (req, res) => {
 };
 
 // --- Verify QR ---
+// export const verifyQR = async (req, res) => {
+//   try {
+//     const { sessionId, nonce } = req.body;
+
+//     if (!sessionId || !nonce) {
+//       return res.status(400).json({ status: "failure", reason: "Missing sessionId or nonce" });
+//     }
+
+//     const record = await Qr.findOne({ sessionId, nonce });
+//     if (!record) {
+//       return res.status(400).json({ status: "failure", reason: "Invalid QR" });
+//     }
+
+//     if (record.exp < new Date()) {
+//       return res.status(400).json({ status: "failure", reason: "QR expired" });
+//     }
+
+//     // ✅ QR valid → now redirect to Face Authentication
+//     // res.json({ status: "success" });
+//     console.log("✅ QR verified, redirecting to Face Auth...");
+//     // For demo, hardcoding username
+//     // const username = "trace"; 
+//     // return res.redirect(`/face/login/${username}?sessionId=${sessionId}&nonce=${nonce}`);
+//     const username = "trace"; 
+//     return res.json({
+//       status: "success",
+//       message: "QR verified",
+//       next: `/face/login/${username}`
+//     });
+//   } catch (err) {
+//     console.error("❌ QR Verification Error:", err.message);
+//     return res.status(500).json({ error: err.message });
+//   }
+// };
 export const verifyQR = async (req, res) => {
   try {
     const { sessionId, nonce } = req.body;
-
-    if (!sessionId || !nonce) {
-      return res.status(400).json({ status: "failure", reason: "Missing sessionId or nonce" });
-    }
-
     const record = await Qr.findOne({ sessionId, nonce });
-    if (!record) {
-      return res.status(400).json({ status: "failure", reason: "Invalid QR" });
-    }
+    if (!record) return res.status(400).json({ status: "failure", reason: "Invalid QR" });
 
     if (record.exp < new Date()) {
       return res.status(400).json({ status: "failure", reason: "QR expired" });
     }
 
-    // ✅ QR valid → now redirect to Face Authentication
-    // res.json({ status: "success" });
-    console.log("✅ QR verified, redirecting to Face Auth...");
-    // For demo, hardcoding username
-    // const username = "trace"; 
-    // return res.redirect(`/face/login/${username}?sessionId=${sessionId}&nonce=${nonce}`);
-    const username = "trace"; 
-    return res.json({
-      status: "success",
-      message: "QR verified",
-      next: `/face/login/${username}`
-    });
+    res.json({ status: "success" });
   } catch (err) {
-    console.error("❌ QR Verification Error:", err.message);
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
