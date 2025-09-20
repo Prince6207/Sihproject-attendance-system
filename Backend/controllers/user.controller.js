@@ -403,36 +403,57 @@ const generateAccessAndRefreshToken = async (studentId) => {
 };
 
 const registerStudent = asyncHandler(async (req, res) => {
+  console.log("=== Controller Debug ===");
+  console.log("req.body:", req.body);
+  console.log("req.body type:", typeof req.body);
+  console.log("req.headers['content-type']:", req.headers['content-type']);
+  console.log("========================");
+  
+  // Check if req.body is undefined
+  if (!req.body) {
+    return res.status(400).json({
+      success: false,
+      message: "Request body is undefined. Please ensure you're sending JSON data with Content-Type: application/json"
+    });
+  }
+  
   const { name, rollNumber, sclass, section, studentMail } = req.body;
+  
+  // Validation
+  if ([name, rollNumber, sclass, section, studentMail].some((f) => !f || f.trim() === "")) {
+    throw new ApiError(400, "All fields are required");
+  }
+  // Check if student already exists
+  const existedStudent = await Student.findOne({
+    $or: [{ rollNumber }, { studentMail }],
+  });
+  if (existedStudent) throw new ApiError(409, "Student already exists");
 
-  // if ([name, rollNumber, sclass, section, studentMail].some((f) => !f || f.trim() === "")) {
-  //   throw new ApiError(400, "All fields are required");
-  // }
+  // Optional: profile picture upload
+  let avatarUrl = null;
+  if (req.files?.avatar?.[0]?.path) {
+    const avatarUpload = await uploadOnCloudinary(req.files.avatar[0].path);
+    avatarUrl = avatarUpload?.url;
+  }
 
-  // const existedStudent = await Student.findOne({
-  //   $or: [{ rollNumber }, { studentMail }],
-  // });
-  // if (existedStudent) throw new ApiError(409, "Student already exists");
+  // Create new student
+  const newStudent = await Student.create({
+    name,
+    rollNumber,
+    class: sclass,
+    section,
+    studentMail,
+    attendance: 0,
+    avatar: avatarUrl,
+  });
 
-  // let avatarUrl = null;
-  // if (req.files?.avatar?.[0]?.path) {
-  //   const avatarUpload = await uploadOnCloudinary(req.files.avatar[0].path);
-  //   avatarUrl = avatarUpload?.url;
-  // }
-
-  // const newStudent = await Student.create({
-  //   name,
-  //   rollNumber,
-  //   class: sclass,
-  //   section,
-  //   studentMail,
-  //   attendance: 0,
-  //   avatar: avatarUrl,
-  // });
+  if (!newStudent) {
+    throw new ApiError(500, "Not able to register the student");
+  }
 
   return res
     .status(201)
-    .json({message: "Student registered successfully"});
+    .json(new ApiResponse(200, newStudent, "Student registered successfully"));
 });
 
 const loginStudent = asyncHandler(async (req, res) => {
