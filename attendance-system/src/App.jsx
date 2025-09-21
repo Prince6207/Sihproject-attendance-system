@@ -8,6 +8,7 @@ import Tsignup from './pages/tsignup';
 import Home from './pages/Home';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
+import Studentattend from './pages/studentattend';
 const student = {
     name: "Shruti Garg",
     rollNumber: 101,
@@ -62,6 +63,10 @@ const router=createBrowserRouter([
     {
         path:'/teacher/dashboard',
         element:<TeacherDashboard teacher={teacher}></TeacherDashboard>
+    }
+    ,{
+      path:'/student/attend',
+      element:<Studentattend></Studentattend>
     }
 ])
 function App() {
